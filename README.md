@@ -1,2 +1,3 @@
-# tornado-mvc
-A light weight MVC (Model View Controller) Framework based on Tornado Web Server.
+# Tornado MVC(Model View Controller)
+
+A light weight MVC Framework based on Tornado Web Server.
