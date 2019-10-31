@@ -8,11 +8,13 @@ This project uses oficial Twitter Bootstrap dependency. Once you have clonend th
 
 1. Get the project into your working directory and update the dependecies:
 
+    ```bash
     git clone https://github.com/luisjba/tornado-mvc
 
     cd tornado-mvc
 
-    git submodule update --init --recursive\
+    git submodule update --init --recursive
+    ```
 
 ## Donate
 
