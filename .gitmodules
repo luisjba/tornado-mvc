@@ -1,0 +1,3 @@
+[submodule "submodules/css/bootstrap"]
+	path = submodules/css/bootstrap
+	url = git@github.com:twbs/bootstrap.git
