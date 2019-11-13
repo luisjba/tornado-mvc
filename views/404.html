@@ -1,0 +1,14 @@
+{% extends "layouts/base.html" %}
+{% block title %}AI-EPS - Page Not Found{% end %}
+{% block layout_body %}
+    <div class="nav" role="navigation">
+         <ol class="breadcrumb">
+            <li><a class="home" href="{{reverse_url('home')}}">Home</a></li>
+        </ol>
+    </div>
+    <div class="jumbotron">
+      <h1>Sorr :(!</h1>
+      <p>The page you are trying to request did not exits, please go to the home page</p>
+      <p><a class="btn btn-primary btn-lg" href="{{reverse_url('home')}}" role="button">Home</a></p>
+    </div>
+{% end %}
