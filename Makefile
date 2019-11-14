@@ -10,13 +10,23 @@ all: submodules $(submodule_bootstrap_js)
 submodules:
 	if  git submodule status | grep -q ^[+-]; then git submodule update --init --recursive; else echo "All submodules are up to date"; fi
 
-$(submodule_bootstrap_js): $(submodule_bootstrap_css) $(jquey_lib)
+$(submodule_bootstrap_js): $(submodule_bootstrap_js).map $(submodule_bootstrap_css) $(jquey_lib)
 	[ ! -d "'dirname $@'" ] && mkdir -p "`dirname $@`"
-	cp submodules/bootstrap/dist/js/bootstrap.min.js $(submodule_bootstrap_js)
+	cp submodules/bootstrap/dist/js/bootstrap.min.js $@
 
-$(submodule_bootstrap_css):
+$(submodule_bootstrap_js).map:
+	[ ! -d "'dirname $@'" ] && mkdir -p "`dirname $@`"
+	cp submodules/bootstrap/dist/js/bootstrap.min.js.map $@
+
+$(submodule_bootstrap_css): $(submodule_bootstrap_css).map
 	[ ! -d "'dirname $@'" ] && mkdir -p "`dirname $@`"
 	cp submodules/bootstrap/dist/css/bootstrap.min.css $@
 
-$(jquey_lib):
+$(submodule_bootstrap_css).map:
+	[ ! -d "'dirname $@'" ] && mkdir -p "`dirname $@`"
+	cp submodules/bootstrap/dist/css/bootstrap.min.css.map $@
+
+
+
+$(jquey_lib): 
 	curl https://code.jquery.com/jquery-2.2.4.min.js --output $@
