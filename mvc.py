@@ -263,7 +263,9 @@ class MVCTornadoApp(tornado.web.Application):
                 raise Exception('The connection_settings parameter must be a dictionaty with host, , database, user and password')
     
     def get_db(self,con_name='default'):
-        if self.db_driver_ready and con_name in self.dbs.keys():
+        if not self.db_driver_ready:
+            return None
+        if con_name in self.dbs.keys():
             if not self.dbs[con_name].is_connected():
                 self.logger.info("Recconectiong to: {}".format(self.get_db_connection_name(self.dbs[con_name])))
                 self.dbs[con_name].connect()
