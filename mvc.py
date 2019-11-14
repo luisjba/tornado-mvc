@@ -174,6 +174,10 @@ class MVCTornadoApp(tornado.web.Application):
             notify('READY=1\nMAINPID={}'.format(os.getpid()), True)
         except ImportError:
             pass
+    
+    def get_route_rules(self):
+        # each rule has matcher, target, target_kwargs, name
+        return self.default_router.rules
 
     def get_controllers_module(self,controllers_path='controllers'):
         """
