@@ -8,44 +8,32 @@
     </ol>
   </nav>
     <div id="list-{{controller_name}}" class="content scaffold-list" role="main">
-        <h1>List of {{controller_name.capitalize()}}</h1>
-        {% if model is None or  type(model) is not list or len(model) == 0 %}
-          <div class="alert alert-warning" role="alert">No Items found</div>
-        {% else %}
-          {% set table_cols = [k for k in model[0].keys() if not k == "id" ] %}
-          <table class="table">
-            <thead>
+        <h1>Routes</h1>
+        <table class="table">
+          <thead>
+            <tr>
+                <th>Route</th>
+                <th>name</th>
+                <th>Controller</th>
+                <th>Action</th>
+                <th>handler location</th>
+                <th>handler_class</th>
+                <th>kwargs</th>
+            </tr>
+          </thead>
+          <tbody>
+              {% for item in handler.application.url_list %}
               <tr>
-                  <th>id</th>
-                  {% for col_name in table_cols %}
-                  <th>{{col_name.capitalize()}}</th>
-                  {% end %}
-                  <th>{{_("Options")}}</th>
+                <td>{{ item.regex.pattern }}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.target_kwargs['controller_name']}}</td>
+                <td>{{item.target_kwargs['action_name']}}</td>
+                <td>{{handler.application.controllers_dict[item.target_kwargs['controller_name']]['controller_file'] }}.py</td>
+                <td>{{item.handler_class.__name__}}</td>
+                <td>{{ ",".join(item.kwargs.keys())}}</td>
               </tr>
-            </thead>
-            <tbody>
-                {% for item in model %}
-                <tr>
-                  <td>{{item['id']}}</td>
-                  {% for k in table_cols %}
-                    <td>{{item[k]}}</td>
-                  {% end %}
-                  <td>
-                      <div class="btn-group btn-group-xs">
-                          <a href="{{reverse_url('{}.show'.format(controller_name), escape(item['id'])) }}" class="btn btn-info btn-sm" role="button">
-                              <span class="glyphicon glyphicon-eye-open"></span>
-                              {{_("Show")}}
-                          </a>
-                          <a href="{{reverse_url('{}.edit'.format(controller_name), escape(item['id'])) }}" class="btn btn-info btn-sm" role="button">
-                              <span class="glyphicon glyphicon-record"></span>
-                              {{_("Edit")}}
-                          </a>
-                      </div>
-                  </td>
-                </tr>
-                {% end %}
-            </tbody>
-          </table>
-        {% end %}
+              {% end %}
+          </tbody>
+        </table>
     </div>
 {% end %}
