@@ -16,6 +16,7 @@ __status__ = 'Development'
 
 import os, sys, inspect, importlib, utils
 import psutil, fcntl, socket, struct
+import tornado.ioloop
 import tornado.web
 from tornado.web import url
 from functools import wraps
@@ -125,7 +126,9 @@ def get_pid_lock_file(pidfile_path, logger, app_name):
 
 
 class MVCTornadoApp(tornado.web.Application):
-    def __init__(self, baseurl, zmq_eventloop=None, logger=None, 
+    def __init__(self, baseurl, 
+                zmq_eventloop=None, 
+                logger=None, 
                 app_name="MVC Tornado App" , home_controller="home", 
                 controllers_path="controllers", views_path="views", 
                 assets_path="assets",
@@ -134,9 +137,11 @@ class MVCTornadoApp(tornado.web.Application):
                 db_module_name=""
                 ):
         self.baseurl = baseurl.rstrip('/')
-        if zmq_eventloop is None:
-            zmq_eventloop = importlib.import_module('zmq.eventloop')
-            zmq_eventloop.ioloop.install()
+
+        #next lines are deprecated
+        # if zmq_eventloop is None:
+        #     zmq_eventloop = importlib.import_module('zmq.eventloop')
+        #     zmq_eventloop.ioloop.install()
         self.logger = logger   
         if self.logger is None:
             self.logger = importlib.import_module('log').logger
@@ -156,17 +161,21 @@ class MVCTornadoApp(tornado.web.Application):
         self._db_connections = db_connections
         self.app_config = app_config
         self.base_path = str(os.path.dirname(os.path.abspath(__file__)) ).replace(os.getcwd()+"/","")
+        self.controllers_dict = self.get_controllers_module(self.controllers_path )
+        self.url_list = []
+        self.generate_tornado_url_list()
         settings = dict(
             compress_response = True,
             template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.views_path),
             static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.assets_path ),
             debug = True
             )
-        self.ioloop = zmq_eventloop.IOLoop.instance()
+        #self.ioloop = zmq_eventloop.IOLoop.instance() # Deprecated
+        self.ioloop = tornado.ioloop.IOLoop.current()
         # to check for blocking when debugging, uncomment the following
         # and set the argument to the blocking timeout in seconds
         #self.ioloop.set_blocking_log_threshold(.5)
-        super(MVCTornadoApp, self).__init__(self.generate_tornado_url_list(), **settings)
+        super(MVCTornadoApp, self).__init__(self.url_list, **settings)
         logger.info(f'{self.app_name} Server started')
         try:
             from systemd.daemon import notify
@@ -212,8 +221,7 @@ class MVCTornadoApp(tornado.web.Application):
 
     def generate_tornado_url_list(self):
         self._generate_db_connections()
-        url_list = []
-        for controller_name, controller_module in self.get_controllers_module(self.controllers_path ).items():
+        for controller_name, controller_module in self.controllers_dict.items():
             for action_name, action_class in self._extract_controller_actions(controller_module['module']).items():
                 # route as raw string 'r'
                 url_route =   r"/{}".format(controller_name)
@@ -229,8 +237,8 @@ class MVCTornadoApp(tornado.web.Application):
                     "logger":self.logger,
                     "db": self.get_db
                     }
-                url_list.append(url(url_route, action_class["class"], handler_initialize_dict, name=url_name))
-        return url_list
+                self.url_list.append(url(url_route, action_class["class"], handler_initialize_dict, name=url_name))
+        
     
     def _generate_db_connections(self):
         self.dbs = {}
@@ -289,7 +297,7 @@ class MVCTornadoApp(tornado.web.Application):
         if self.dbs is not None and type(self.dbs) is dict:
             for con_name, db_con in self.dbs.items():
                 if db_con.is_connected():
-                    self.logger.info("Clossing connection: {}".format(self.get_db_connection_name(db_con)))
+                    self.logger.info("Clossing connection: {} - {}".format(con_name, self.get_db_connection_name(db_con)))
                     db_con.close()
         self.ioloop.stop()
 

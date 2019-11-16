@@ -18,15 +18,15 @@ import os, signal
 from log import logger
 import misc, utils, mvc
 from mvc import MVCTornadoApp
-from zmq import eventloop
-eventloop.ioloop.install()
+# from zmq import eventloop
+# eventloop.ioloop.install()
 
 if __name__ == "__main__":
     import argparse
     config = misc.Config()
     conf_keys = ["app_name", "home_controller", "controllers_path","views_path","assets_path","db_connections","app_config"]
     app_kwargs = {conf_k:config.get(conf_k) for conf_k in conf_keys}
-    app_kwargs["zmq_eventloop"] = eventloop
+    # app_kwargs["zmq_eventloop"] = eventloop
     app_kwargs["logger"] = logger
     pidfile_path = config.get('pid_file')
     parser = argparse.ArgumentParser(description='Launch a {} web server'.format(app_kwargs["app_name"]), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
