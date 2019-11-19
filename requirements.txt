@@ -1,0 +1,4 @@
+lockfile
+paramiko
+sockjs-tornado
+sqlalchemy
