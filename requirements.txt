@@ -1,3 +1,4 @@
+psutil
 lockfile
 paramiko
 sockjs-tornado
