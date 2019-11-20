@@ -30,7 +30,7 @@ if __name__ == "__main__":
     app_kwargs["logger"] = logger
     pidfile_path = config.get('pid_file')
     parser = argparse.ArgumentParser(description='Launch a {} web server'.format(app_kwargs["app_name"]), formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-p', '--port', type=int, default=8888, help='port to launch the server')
+    parser.add_argument('-p', '--port', type=int, default=8080, help='port to launch the server')
     parser.add_argument('-b', '--baseurl', default="", help="base url")
     parser.add_argument('--interface', default=None, help="interface to listen on (default all)")
     args = parser.parse_args()
