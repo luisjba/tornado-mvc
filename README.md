@@ -38,6 +38,9 @@ The Tornado Web Server runs at 8888 port, you can browse at [localhost:8888](htt
 
 
 
+# Controllers and Actions as RequestHandler
+
+The Tornado MVC Framework find for controllers files in the directory `controllers` and assing the name 
 
 ## Donate
 
