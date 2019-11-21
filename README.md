@@ -17,7 +17,7 @@ This project uses oficial [Twitter Bootstrap](https://github.com/twbs/bootstrap)
     ```
 2. Install the requirements from requirements.txt file using pip:
     ```bash
-    pip install -r requirements.tx
+    pip install -r requirements.txt
     ```
 3. Build the mvc to install the submodules:
     ```bash
