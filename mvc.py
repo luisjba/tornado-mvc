@@ -254,7 +254,7 @@ class MVCTornadoApp(tornado.web.Application):
                         self.logger.info("Connected to: {}".format(self.get_db_connection_name(db_con)))
                         if self.db is None or con_name == "default":
                             self.db = db_con
-                    except self.db_driver_error as error:
+                    except Exception as error:
                         self.logger.info(error)
             else:
                 self.logger.info("The db_connections is not dict: {}".format(self._db_connections ))
