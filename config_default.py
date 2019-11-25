@@ -5,3 +5,4 @@ controllers_path = "controllers"
 views_path = "views"
 assets_path = "assets"
 pid_file = 'mvc_tornado_app.pid'
+db_module_name = ""

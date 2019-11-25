@@ -24,7 +24,7 @@ from mvc import MVCTornadoApp
 if __name__ == "__main__":
     import argparse
     config = misc.Config()
-    conf_keys = ["app_name", "home_controller", "controllers_path","views_path","assets_path","db_connections","app_config"]
+    conf_keys = ["app_name", "home_controller", "controllers_path","views_path","assets_path","db_connections","app_config","db_module_name"]
     app_kwargs = {conf_k:config.get(conf_k) for conf_k in conf_keys}
     # app_kwargs["zmq_eventloop"] = eventloop
     app_kwargs["logger"] = logger
