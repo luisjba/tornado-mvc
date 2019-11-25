@@ -151,7 +151,9 @@ class MVCTornadoApp(tornado.web.Application):
                 self.db_driver = importlib.import_module(db_module_name)
                 self.db_driver_error = self.db_driver.Error
                 self.db_driver_ready=True
+                self.logger.info("Database Driver '{}' sucessfful loaded".format(db_module_name))
             except :
+                self.logger.info("Error loading Database Driver '{}'".format(db_module_name))
                 self.db_driver_ready=False
         self.app_name = app_name
         self.home_controller = home_controller
