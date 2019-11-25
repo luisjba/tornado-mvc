@@ -40,14 +40,17 @@ def decorator_request_handler_prepare(func):
     "prepare the RequestHandler when a request is received"
     @wraps(func)
     def decorator(self, *args, **kwargs):
-        self._db = self.db()
+        self._db = None
         self.cursor = None
-        if self._db is not None:
-            self.cursor = self._db.cursor(dictionary=True)
         self.is_ajax_request = False
+        self.response = {'status':'error'}
+        if self.application.db_driver_ready:
+            self._db = self.db()
+            if self._db is not None:
+                self.cursor = self._db.cursor(dictionary=True)
+            self.response = {'status':'ok'}
         if self.request.headers.get("X-Requested-With", "").startswith("XMLHTTPRequest"):
             self.is_ajax_request = True
-        self.response = {'status':'ok'}
         func(self, *args, **kwargs)
     return decorator
 
@@ -279,13 +282,16 @@ class MVCTornadoApp(tornado.web.Application):
     def get_db(self,con_name='default'):
         if not self.db_driver_ready:
             return None
-        if con_name in self.dbs.keys():
+        if self.db_exists(con_name):
             if not self.dbs[con_name].is_connected():
                 self.logger.info("Recconectiong to: {}".format(self.get_db_connection_name(self.dbs[con_name])))
                 self.dbs[con_name].connect()
             #self.logger.info("Returnning connection: {}".format(self.get_db_connection_name(self.dbs[con_name])))
             return self.dbs[con_name]
-        raise Exception('Database Connection {} not exists'.format(con_name))
+        raise Exception('Database Connection to: {} not exists'.format(con_name))
+
+    def db_exists(self, db_name):
+        return True if db_name in self.dbs.keys() else False
     
     def get_db_connection_name(self, db_con):
         if self.db_driver_ready:
