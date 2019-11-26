@@ -4,12 +4,12 @@
 Model View Controller core framework for Tornado Web Server
 
 @datecreated: 2019-08-13
-@lastupdated: 2019-11-13
+@lastupdated: 2019-11-25
 @author: luisjba
 """
 # Meta informations.
 __author__ = 'Jose Luis Bracamonte Amavizca'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __maintainer__ = 'Jose Luis Bracamonte Amavizca'
 __email__ = 'me@luisjba.com'
 __status__ = 'Development'
@@ -44,7 +44,7 @@ def decorator_request_handler_prepare(func):
         self.cursor = None
         self.is_ajax_request = False
         self.response = {'status':'error'}
-        if self.application.db_driver_ready:
+        if self.application.db_driver_ready and len(self.application.dbs) > 0:
             self._db = self.db()
             if self._db is not None:
                 self.cursor = self._db.cursor(dictionary=True)
@@ -282,6 +282,8 @@ class MVCTornadoApp(tornado.web.Application):
     def get_db(self,con_name='default'):
         if not self.db_driver_ready:
             return None
+        if con_name == "defualt":
+            return self.db    
         if self.db_exists(con_name):
             if not self.dbs[con_name].is_connected():
                 self.logger.info("Recconectiong to: {}".format(self.get_db_connection_name(self.dbs[con_name])))
