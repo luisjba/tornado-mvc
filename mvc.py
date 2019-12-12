@@ -27,12 +27,10 @@ def decorator_request_handler_initialize(func):
     @wraps(func)
     def decorator(self, *args, **kwargs):
         for k,v in kwargs.items():
-            if k in ['controller_name', 'action_name','logger','db']:
+            if k in ['controller_name', 'action_name']:
                 self.__setattr__(k,v)
         if 'controller_name' in kwargs.keys() and 'action_name' in kwargs.keys():
             self.template_file = "{}/{}.html".format(self.controller_name, self.action_name )
-        if 'logger' in kwargs.keys() and self.logger is None:
-            self.logger = importlib.import_module('log').logger
         func(self, *args, **kwargs)
     return decorator
 
@@ -40,14 +38,9 @@ def decorator_request_handler_prepare(func):
     "prepare the RequestHandler when a request is received"
     @wraps(func)
     def decorator(self, *args, **kwargs):
-        self._db = None
-        self.cursor = None
         self.is_ajax_request = False
         self.response = {'status':'error'}
         if self.application.db_driver_ready and len(self.application.dbs) > 0:
-            self._db = self.db()
-            if self._db is not None:
-                self.cursor = self._db.cursor(dictionary=True)
             self.response = {'status':'ok'}
         if self.request.headers.get("X-Requested-With", "").startswith("XMLHTTPRequest"):
             self.is_ajax_request = True
@@ -80,9 +73,9 @@ def decorator_request_handler_render(func):
                             render_kwargs[k] = v
         else:
             render_kwargs["model"] = function_ret
-        if self.logger is not None:
-            self.logger.info("Rendered template:{}".format(self.template_file),render_kwargs)
-            # self.logger.info(render_kwargs)
+        if self.application.logger is not None:
+            self.application.logger.info("Rendered template:{}".format(self.template_file),render_kwargs)
+            # self.application.logger.info(render_kwargs)
         self.render(self.template_file, **render_kwargs)
     return decorator
 
@@ -133,7 +126,7 @@ class MVCTornadoApp(tornado.web.Application):
                 zmq_eventloop=None, 
                 logger=None, 
                 app_name="MVC Tornado App" , home_controller="home", 
-                controllers_path="controllers", views_path="views", 
+                models_path="models", controllers_path="controllers", views_path="views", 
                 assets_path="assets",
                 db_connections=dict(),
                 app_config = dict(),
@@ -160,6 +153,7 @@ class MVCTornadoApp(tornado.web.Application):
                 self.db_driver_ready=False
         self.app_name = app_name
         self.home_controller = home_controller
+        self.models_path = models_path
         self.controllers_path = controllers_path
         self.views_path = views_path
         self.assets_path = assets_path
@@ -238,9 +232,7 @@ class MVCTornadoApp(tornado.web.Application):
                     url_name = "home"
                 handler_initialize_dict = {
                     "controller_name":controller_name, 
-                    "action_name":action_name, 
-                    "logger":self.logger,
-                    "db": self.get_db
+                    "action_name":action_name
                     }
                 self.url_list.append(url(url_route, action_class["class"], handler_initialize_dict, name=url_name))
         
