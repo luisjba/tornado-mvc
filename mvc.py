@@ -187,25 +187,6 @@ class MVCTornadoApp(tornado.web.Application):
         # each rule has matcher, target, target_kwargs, name
         return self.default_router.rules
 
-    def get_models_module(self, models_path='modules'):
-        """
-        Finds all the models and inpor the module into the dict
-
-        :param: model_path:str
-        :rtype:dict
-        """
-        size_to_remove = len(".py")
-        models_path_abs = models_path
-        if not models_path_abs[0] == "/":
-            models_path_abs = os.path.join(self.base_path, models_path)
-        models_files = [utils.remove_extension(os.path.basename(f)) for f in utils.file_list_by_extension(models_path_abs, 'py')]
-        models_module = {}
-        for model_file in models_files :
-            module_name = "{}.{}".format(models_path,model_file)
-            model_name = model_file[:-size_to_remove]
-            models_module[model_name] = {"module":importlib.import_module(module_name), "model_file":model_file }
-        return models_module
-
     def get_modules_as_dict(self, module_path, file_ext=".py", sufix_filter=""):
         """
         Finds all the modules int a path and import the module into the dict
@@ -229,6 +210,15 @@ class MVCTornadoApp(tornado.web.Application):
             modules_dict[key_name] = {"module":importlib.import_module(module_name), "module_file":m_file }
         return modules_dict
 
+    def get_models_module(self, models_path='modules'):
+        """
+        Finds all the models and import the module
+
+        :param: model_path:str
+        :rtype:dict
+        """
+        return self.get_modules_as_dict(models_path)
+
 
     def get_controllers_module(self,controllers_path='controllers'):
         """
@@ -237,18 +227,7 @@ class MVCTornadoApp(tornado.web.Application):
         :param: controllers_path:str
         :rtype:dict
         """
-        sufix_filter = "_controller.py"
-        size_to_remove = len(sufix_filter) - len(".py")
-        controllers_path_abs = controllers_path
-        if not controllers_path_abs[0] == "/":
-            controllers_path_abs = os.path.join(self.base_path, controllers_path)
-        controller_files = [utils.remove_extension(os.path.basename(f)) for f in utils.file_list_by_extension(controllers_path_abs, 'py') if f.endswith(sufix_filter)]
-        controllers_module = {}
-        for controller_file in controller_files :
-            module_name = "{}.{}".format(controllers_path,controller_file)
-            controller_name = controller_file[:-size_to_remove]
-            controllers_module[controller_name] = {"module":importlib.import_module(module_name), "controller_file":controller_file }
-        return controllers_module
+        return self.get_modules_as_dict(controllers_path, file_ext=".py", sufix_filter="_controller.py")
 
     def _extract_controller_actions(self,controller_module):
         sufix_filter = "RequestHandler"
