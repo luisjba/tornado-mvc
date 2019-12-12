@@ -187,6 +187,49 @@ class MVCTornadoApp(tornado.web.Application):
         # each rule has matcher, target, target_kwargs, name
         return self.default_router.rules
 
+    def get_models_module(self, models_path='modules'):
+        """
+        Finds all the models and inpor the module into the dict
+
+        :param: model_path:str
+        :rtype:dict
+        """
+        size_to_remove = len(".py")
+        models_path_abs = models_path
+        if not models_path_abs[0] == "/":
+            models_path_abs = os.path.join(self.base_path, models_path)
+        models_files = [utils.remove_extension(os.path.basename(f)) for f in utils.file_list_by_extension(models_path_abs, 'py')]
+        models_module = {}
+        for model_file in models_files :
+            module_name = "{}.{}".format(models_path,model_file)
+            model_name = model_file[:-size_to_remove]
+            models_module[model_name] = {"module":importlib.import_module(module_name), "model_file":model_file }
+        return models_module
+
+    def get_modules_as_dict(self, module_path, file_ext=".py", sufix_filter=""):
+        """
+        Finds all the modules int a path and import the module into the dict
+
+        :param: module_path:str
+        :param: file_ext:str
+        :param: sufix_filter:str
+        :rtype:dict
+        """
+        size_to_remove = len(file_ext)
+        if len(sufix_filter) > len(file_ext):
+            size_to_remove = len(sufix_filter) - len(file_ext)
+        module_path_abs = module_path
+        if not module_path_abs[0] == "/":
+            module_path_abs = os.path.join(self.base_path, module_path)
+        module_files = [utils.remove_extension(os.path.basename(f)) for f in utils.file_list_by_extension(module_path_abs, 'py') if f.endswith(sufix_filter)]
+        modules_dict = {}
+        for m_file in module_files :
+            module_name = "{}.{}".format(module_path, m_file)
+            key_name = m_file[:-size_to_remove]
+            modules_dict[key_name] = {"module":importlib.import_module(module_name), "module_file":m_file }
+        return modules_dict
+
+
     def get_controllers_module(self,controllers_path='controllers'):
         """
         Find all the controllers and import the module
