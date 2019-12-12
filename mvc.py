@@ -219,6 +219,16 @@ class MVCTornadoApp(tornado.web.Application):
         """
         return self.get_modules_as_dict(models_path)
 
+    def _find_and_extract_classes_from_module(self, target_module,  sufix_filter = ""):
+        classes_dict = {}
+        size_to_remove = len(sufix_filter)
+        classes_found = [member_class for member_class in inspect.getmembers(target_module, inspect.isclass) if member_class[0].endswith(sufix_filter)]
+        for class_item in classes_found:
+            class_name = class_item[0]
+            class_key = (class_name if size_to_remove == 0 else class_name[:-size_to_remove]).lower()
+            classes_dict[class_key] = {"class": class_item[1], "class_name":class_name}
+        return classes_dict
+
 
     def get_controllers_module(self,controllers_path='controllers'):
         """
