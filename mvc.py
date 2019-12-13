@@ -240,15 +240,7 @@ class MVCTornadoApp(tornado.web.Application):
         return self.get_modules_as_dict(controllers_path, file_ext=".py", sufix_filter="_controller.py")
 
     def _extract_controller_actions(self,controller_module):
-        sufix_filter = "RequestHandler"
-        size_to_remove = len(sufix_filter)
-        actions_classes = [member_class for member_class in inspect.getmembers(controller_module, inspect.isclass) if member_class[0].endswith(sufix_filter)]
-        controller_actions = {}
-        for action_class in actions_classes:
-            class_name = action_class[0]
-            action_name = class_name[:-size_to_remove].lower()
-            controller_actions[action_name] = {"class": action_class[1], "class_name":class_name}
-        return controller_actions
+        return self._find_and_extract_classes_from_module(controller_module, sufix_filter="RequestHandler")
 
     def generate_tornado_url_list(self):
         self._generate_db_connections()
