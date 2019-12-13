@@ -223,6 +223,9 @@ class MVCTornadoApp(tornado.web.Application):
     def _extract_controller_actions(self,controller_module):
         return self._find_and_extract_classes_from_module(controller_module, sufix_filter="RequestHandler")
 
+    def _extract_model_classes(self, model_module):
+        return self._find_and_extract_classes_from_module(model_module, sufix_filter="Model")    
+
     def get_models_module(self, models_path='modules'):
         """
         Finds all the models and import the module
@@ -231,8 +234,6 @@ class MVCTornadoApp(tornado.web.Application):
         :rtype:dict
         """
         return self.get_modules_as_dict(models_path)
-
-    
 
     def get_controllers_module(self,controllers_path='controllers'):
         """
