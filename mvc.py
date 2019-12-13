@@ -209,16 +209,7 @@ class MVCTornadoApp(tornado.web.Application):
             key_name = m_file[:-size_to_remove]
             modules_dict[key_name] = {"module":importlib.import_module(module_name), "module_file":m_file }
         return modules_dict
-
-    def get_models_module(self, models_path='modules'):
-        """
-        Finds all the models and import the module
-
-        :param: model_path:str
-        :rtype:dict
-        """
-        return self.get_modules_as_dict(models_path)
-
+    
     def _find_and_extract_classes_from_module(self, target_module,  sufix_filter = ""):
         classes_dict = {}
         size_to_remove = len(sufix_filter)
@@ -229,6 +220,14 @@ class MVCTornadoApp(tornado.web.Application):
             classes_dict[class_key] = {"class": class_item[1], "class_name":class_name}
         return classes_dict
 
+    def get_models_module(self, models_path='modules'):
+        """
+        Finds all the models and import the module
+
+        :param: model_path:str
+        :rtype:dict
+        """
+        return self.get_modules_as_dict(models_path)
 
     def get_controllers_module(self,controllers_path='controllers'):
         """
