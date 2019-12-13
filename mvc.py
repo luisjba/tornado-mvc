@@ -160,9 +160,12 @@ class MVCTornadoApp(tornado.web.Application):
         self._db_connections = db_connections
         self.app_config = app_config
         self.base_path = str(os.path.dirname(os.path.abspath(__file__)) ).replace(os.getcwd()+"/","")
-        self.controllers_dict = self.get_controllers_module(self.controllers_path )
+        self.modles_dict = self.generate_models_classes()
+        self.models = {m_name:m_dict["class"](self) for m_name,m_dict in self.modles_dict.items()}
+        self.controllers_dict = self.get_controllers_module(self.controllers_path)
         self.url_list = []
         self.generate_tornado_url_list()
+        self._generate_db_connections()
         settings = dict(
             compress_response = True,
             template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.views_path),
@@ -226,7 +229,7 @@ class MVCTornadoApp(tornado.web.Application):
     def _extract_model_classes(self, model_module):
         return self._find_and_extract_classes_from_module(model_module, sufix_filter="Model")    
 
-    def get_models_module(self, models_path='modules'):
+    def get_models_modules(self, models_path='modules'):
         """
         Finds all the models and import the module
 
@@ -244,10 +247,16 @@ class MVCTornadoApp(tornado.web.Application):
         """
         return self.get_modules_as_dict(controllers_path, file_ext=".py", sufix_filter="_controller.py")
 
-    
+    def generate_models_classes(self):
+        models_modules = {}
+        for module_name, model_module in self.get_models_modules(models_path=self.models_path):
+            for class_name, class_dict in self._extract_model_classes(model_module):
+                model_key_name = "{}.{}".format(module_name,class_name)
+                models_modules[model_key_name] = class_dict
+        return models_modules
+
 
     def generate_tornado_url_list(self):
-        self._generate_db_connections()
         for controller_name, controller_module in self.controllers_dict.items():
             for action_name, action_class in self._extract_controller_actions(controller_module['module']).items():
                 # route as raw string 'r'
