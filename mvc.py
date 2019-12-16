@@ -4,12 +4,12 @@
 Model View Controller core framework for Tornado Web Server
 
 @datecreated: 2019-08-13
-@lastupdated: 2019-11-25
+@lastupdated: 2019-12-16
 @author: luisjba
 """
 # Meta informations.
 __author__ = 'Jose Luis Bracamonte Amavizca'
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 __maintainer__ = 'Jose Luis Bracamonte Amavizca'
 __email__ = 'me@luisjba.com'
 __status__ = 'Development'
@@ -179,9 +179,10 @@ class MVCTornadoApp(tornado.web.Application):
         self.logger.info("==> Models:")  
         if len(self.models) > 0:
             self.logger.info(row_separator_top)
-            self.logger.info("|{:^30}|{:^20}|".format("Model","Class"))
+            self.logger.info("|{:^30}|{:^20}|".format("Model Key","Class"))
+            self.logger.info(row_separator)
             for m_name, m_val in self.modles_dict.items():
-                self.logger.info("|{:30.27}|{:20.17}|".format(m_name, str(m_val["class"])))
+                self.logger.info("|{:30.27}|{:20.17}|".format(m_name, m_val["class"].__name__))
                 self.logger.info(row_separator)
         else:
             self.logger.info("  No Models found in: {} ".format(self.models_path))
@@ -291,7 +292,7 @@ class MVCTornadoApp(tornado.web.Application):
         models_modules = {}
         for module_name, model_module in self.get_models_modules(models_path=self.models_path).items():
             for class_name, class_dict in self._extract_model_classes(model_module['module']).items():
-                model_key_name = "{}.{}".format(module_name,class_name)
+                model_key_name = "{}.{}".format(module_name, class_dict['class'].__name__)
                 models_modules[model_key_name] = class_dict
         return models_modules
 
