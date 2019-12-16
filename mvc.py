@@ -249,8 +249,8 @@ class MVCTornadoApp(tornado.web.Application):
 
     def generate_models_classes(self):
         models_modules = {}
-        for module_name, model_module in self.get_models_modules(models_path=self.models_path):
-            for class_name, class_dict in self._extract_model_classes(model_module):
+        for module_name, model_module in self.get_models_modules(models_path=self.models_path).items():
+            for class_name, class_dict in self._extract_model_classes(model_module).items():
                 model_key_name = "{}.{}".format(module_name,class_name)
                 models_modules[model_key_name] = class_dict
         return models_modules
