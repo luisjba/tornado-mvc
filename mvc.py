@@ -172,20 +172,30 @@ class MVCTornadoApp(tornado.web.Application):
             static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.assets_path ),
             debug = True
             )
-        # Models    
+        columns = [30,20]
+        row_separator_top = self.get_br_separator(columns,separator_char='_')
+        row_separator = self.get_br_separator(columns)
+        # Models  
+        self.logger.info("==> Models:")  
         if len(self.models) > 0:
-            self.logger.info("{:d} Models found ".format(len(self.models)))
-            for m_name in self.models.keys():
-                self.logger.info("  {:s} ".format(m_name))
+            self.logger.info(row_separator_top)
+            self.logger.info("|{:^30}|{:^20}|".format("Model","Class"))
+            for m_name, m_val in self.modles_dict.items():
+                self.logger.info("|{:30.27}|{:20.17}|".format(m_name, str(m_val["class"])))
+                self.logger.info(row_separator)
         else:
-            self.logger.info("No Models found in: {} ".format(self.models_path))
+            self.logger.info("  No Models found in: {} ".format(self.models_path))
         # Controllers
+        self.logger.info("==> Controllers:")
         if len(self.controllers_dict) > 0:
-            self.logger.info("{:d} Controllers found ".format(len(self.controllers_dict)))
-            for m_name in self.controllers_dict.keys():
-                self.logger.info("  {:s} ".format(m_name))
+            self.logger.info(row_separator_top)
+            self.logger.info("|{:^30}|{:^20}|".format("File","Controller"))
+            self.logger.info(row_separator)
+            for m_name,m_val in self.controllers_dict.items():
+                self.logger.info("|{:30.27}|{:20.17}|".format(str(m_val["file"]), m_name))
+                self.logger.info(row_separator)
         else:
-            self.logger.info("No Controllers found in: {} ".format(self.controllers_path))
+            self.logger.info("  No Controllers found in: {} ".format(self.controllers_path))
         #self.ioloop = zmq_eventloop.IOLoop.instance() # Deprecated
         self.ioloop = tornado.ioloop.IOLoop.current()
         # to check for blocking when debugging, uncomment the following
@@ -200,9 +210,6 @@ class MVCTornadoApp(tornado.web.Application):
         except ImportError:
             pass
         # Routes
-        columns = [30,20]
-        row_separator_top = self.get_br_separator(columns,separator_char='_')
-        row_separator = self.get_br_separator(columns)
         self.logger.info("==> Routes:")
         self.logger.info(row_separator_top)
         self.logger.info("|{:^30}|{:^20}|".format("route","name"))
@@ -243,7 +250,7 @@ class MVCTornadoApp(tornado.web.Application):
         for m_file in module_files :
             module_name = "{}.{}".format(module_path, m_file)
             key_name = m_file[:-size_to_remove]
-            modules_dict[key_name] = {"module":importlib.import_module(module_name), "module_file":m_file }
+            modules_dict[key_name] = {"module":importlib.import_module(module_name), "file":m_file }
         return modules_dict
     
     def _find_and_extract_classes_from_module(self, target_module,  sufix_filter = ""):
