@@ -172,6 +172,20 @@ class MVCTornadoApp(tornado.web.Application):
             static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.assets_path ),
             debug = True
             )
+        # Models    
+        if len(self.models) > 0:
+            self.logger.info("{:d} Models found ".format(len(self.models)))
+            for m_name in self.models.keys():
+                self.logger.info("  {:s} ".format(m_name))
+        else:
+            self.logger.info("No Models found in: {} ".format(self.models_path))
+        # Controllers
+        if len(self.controllers_dict) > 0:
+            self.logger.info("{:d} Controllers found ".format(len(self.controllers_dict)))
+            for m_name in self.controllers_dict.keys():
+                self.logger.info("  {:s} ".format(m_name))
+        else:
+            self.logger.info("No Controllers found in: {} ".format(self.controllers_path))
         #self.ioloop = zmq_eventloop.IOLoop.instance() # Deprecated
         self.ioloop = tornado.ioloop.IOLoop.current()
         # to check for blocking when debugging, uncomment the following
@@ -185,6 +199,25 @@ class MVCTornadoApp(tornado.web.Application):
             notify('READY=1\nMAINPID={}'.format(os.getpid()), True)
         except ImportError:
             pass
+        # Routes
+        columns = [30,20]
+        row_separator_top = self.get_br_separator(columns,separator_char='_')
+        row_separator = self.get_br_separator(columns)
+        self.logger.info("==> Routes:")
+        self.logger.info(row_separator_top)
+        self.logger.info("|{:^30}|{:^20}|".format("route","name"))
+        self.logger.info(row_separator)
+        for url in self.url_list:
+            self.logger.info("|{:30.27}|{:20.17}|".format(url.regex.pattern, url.name))
+            self.logger.info(row_separator)
+    
+    def get_br_separator(self, width_list:list, separator_char='|') -> str:
+        brseparator=""
+        for i in range(len(width_list)):
+            if i == 0:
+                brseparator = "{}".format(separator_char)
+            brseparator =  "{}{}{}".format(brseparator, ("_"* width_list[i]), separator_char)
+        return brseparator
     
     def get_route_rules(self):
         # each rule has matcher, target, target_kwargs, name
@@ -229,7 +262,7 @@ class MVCTornadoApp(tornado.web.Application):
     def _extract_model_classes(self, model_module):
         return self._find_and_extract_classes_from_module(model_module, sufix_filter="Model")    
 
-    def get_models_modules(self, models_path='modules'):
+    def get_models_modules(self, models_path='modules') -> dict:
         """
         Finds all the models and import the module
 
@@ -238,7 +271,7 @@ class MVCTornadoApp(tornado.web.Application):
         """
         return self.get_modules_as_dict(models_path)
 
-    def get_controllers_module(self,controllers_path='controllers'):
+    def get_controllers_module(self,controllers_path='controllers') -> dict:
         """
         Find all the controllers and import the module
         
@@ -247,7 +280,7 @@ class MVCTornadoApp(tornado.web.Application):
         """
         return self.get_modules_as_dict(controllers_path, file_ext=".py", sufix_filter="_controller.py")
 
-    def generate_models_classes(self):
+    def generate_models_classes(self) -> dict:
         models_modules = {}
         for module_name, model_module in self.get_models_modules(models_path=self.models_path).items():
             for class_name, class_dict in self._extract_model_classes(model_module).items():
