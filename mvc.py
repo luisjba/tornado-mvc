@@ -130,7 +130,8 @@ class MVCTornadoApp(tornado.web.Application):
                 assets_path="assets",
                 db_connections=dict(),
                 app_config = dict(),
-                db_module_name=""
+                db_module_name="",
+                debug=False
                 ):
         self.baseurl = baseurl.rstrip('/')
 
@@ -170,7 +171,7 @@ class MVCTornadoApp(tornado.web.Application):
             compress_response = True,
             template_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.views_path),
             static_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), self.assets_path ),
-            debug = True
+            debug = debug
             )
         columns = [30,20]
         row_separator_top = self.get_br_separator(columns,separator_char='_')
